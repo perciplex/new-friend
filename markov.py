@@ -7,7 +7,6 @@ import copy
 BEGIN = "___BEGIN__"
 END = "___END__"
 
-
 def accumulate(iterable, func=operator.add):
     """
     Cumulative calculations. (Summation, by default.)
@@ -20,15 +19,13 @@ def accumulate(iterable, func=operator.add):
         total = func(total, element)
         yield total
 
-
 def compile_next(next_dict):
     words = list(next_dict.keys())
     cff = list(accumulate(next_dict.values()))
     return [words, cff]
 
-
 def clean_string(input_str: str) -> str:
-    return input_str.upper()  # .strip("_*'`")
+    return input_str.upper()#.strip("_*'`")
 
 
 class Chain(object):
@@ -36,7 +33,6 @@ class Chain(object):
     A Markov chain representing processes that have both beginnings and ends.
     For example: Sentences.
     """
-
     def __init__(self, corpus, state_size, model=None):
         """
         `corpus`: A list of lists, where each outer list is a "run"
@@ -49,22 +45,16 @@ class Chain(object):
         """
         self.state_size = state_size
         self.model = model or self.build(corpus, self.state_size)
-        self.compiled = (len(self.model) > 0) and (
-            type(self.model[tuple([BEGIN] * state_size)]) == list
-        )
+        self.compiled = (len(self.model) > 0) and (type(self.model[tuple([BEGIN]*state_size)]) == list)
         if not self.compiled:
             self.precompute_begin_state()
 
-    def compile(self, inplace=False):
+    def compile(self, inplace = False):
         if self.compiled:
-            if inplace:
-                return self
-            return Chain(None, self.state_size, model=copy.deepcopy(self.model))
-        mdict = {
-            state: compile_next(next_dict) for (state, next_dict) in self.model.items()
-        }
-        if not inplace:
-            return Chain(None, self.state_size, model=mdict)
+            if inplace: return self
+            return Chain(None, self.state_size, model = copy.deepcopy(self.model))
+        mdict = { state: compile_next(next_dict) for (state, next_dict) in self.model.items() }
+        if not inplace: return Chain(None, self.state_size, model = mdict)
         self.model = mdict
         self.compiled = True
         return self
@@ -83,12 +73,10 @@ class Chain(object):
         model = {}
 
         for run in corpus:
-            items = ([BEGIN] * state_size) + run + [END]
+            items = ([ BEGIN ] * state_size) + run + [ END ]
             for i in range(len(run) + 1):
-                state = tuple(
-                    clean_string(token) for token in items[i : i + state_size]
-                )
-                follow = items[i + state_size]
+                state = tuple(clean_string(token) for token in items[i:i+state_size])
+                follow = items[i+state_size]
                 if state not in model:
                     model[state] = {}
 
@@ -103,7 +91,7 @@ class Chain(object):
         Caches the summation calculation and available choices for BEGIN * state_size.
         Significantly speeds up chain generation on large corpora. Thanks, @schollz!
         """
-        begin_state = tuple([BEGIN] * self.state_size)
+        begin_state = tuple([ BEGIN ] * self.state_size)
         choices, cumdist = compile_next(self.model[begin_state])
         self.begin_cumdist = cumdist
         self.begin_choices = choices
@@ -115,7 +103,7 @@ class Chain(object):
         state = tuple(clean_string(token) for token in state)
         if self.compiled:
             choices, cumdist = self.model[state]
-        elif state == tuple([BEGIN] * self.state_size):
+        elif state == tuple([ BEGIN ] * self.state_size):
             choices = self.begin_choices
             cumdist = self.begin_cumdist
         else:
@@ -135,8 +123,7 @@ class Chain(object):
         state = tuple(clean_string(token) for token in state)
         while True:
             next_word = self.move(state)
-            if next_word == END:
-                break
+            if next_word == END: break
             yield next_word
             state = tuple(state[1:]) + (next_word,)
 
@@ -154,6 +141,21 @@ class Chain(object):
         """
         return json.dumps(list(self.model.items()))
 
+    def to_json_file(self, fname):
+        """
+        Dump the model as a JSON object, for loading later.
+        """
+        with open(fname, 'w') as f:
+            json.dump(list(self.model.items()), f)
+
+    @classmethod
+    def from_json_file(cls, json_fname):
+        with open(json_fname, 'r') as f:
+            file_string = f.read()
+        
+        cls.from_json(file_string)
+        
+        
     @classmethod
     def from_json(cls, json_thing):
         """

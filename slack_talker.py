@@ -2,7 +2,6 @@ import os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import json
-import numpy as np
 from pathlib import Path
 
 WHITELIST = [
