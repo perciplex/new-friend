@@ -32,7 +32,7 @@ class SlackTalker:
         self.client = WebClient(token=TOKEN)
         self.channel_id = channel_id
 
-        path = Path("data") / "fpff_slack" / "users.json"
+        path = "users.json"
         with open(path, "r") as f:
             self.users = {user.get("id"): user for user in json.load(f)}
 
@@ -51,8 +51,11 @@ class SlackTalker:
             result = self.client.chat_postMessage(
                 channel=self.channel_id,
                 text=text,
-                username=self.users.get(user_id).get("profile").get("display_name")
-                or self.users.get(user_id).get("profile").get("real_name"),
+                username=(
+                    self.users.get(user_id).get("bot_name") or
+                    self.users.get(user_id).get("profile").get("display_name") or 
+                    self.users.get(user_id).get("profile").get("real_name")
+                    ),
                 icon_url=self.users.get(user_id).get("profile").get("image_72"),
             )
 

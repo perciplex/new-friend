@@ -153,7 +153,7 @@ class Chain(object):
         with open(json_fname, 'r') as f:
             file_string = f.read()
         
-        cls.from_json(file_string)
+        return cls.from_json(file_string)
         
         
     @classmethod
