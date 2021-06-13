@@ -3,6 +3,14 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import json
 from pathlib import Path
+import logging
+
+log = logging.getLogger()
+
+
+DEFAULT_DATA_PATH = Path(__file__).parent.parent / "data"
+DEFAULT_CHANNEL = "app-test"
+
 
 WHITELIST = [
     "U1P9EE03G",
@@ -24,15 +32,20 @@ WHITELIST = [
 
 shortid_to_userid = {user_id[-5:]: user_id for user_id in WHITELIST}
 
-TOKEN = os.getenv("SLACK_TOKEN")
-
 
 class SlackTalker:
-    def __init__(self, channel_id):
-        self.client = WebClient(token=TOKEN)
-        self.channel_id = channel_id
+    def __init__(self, channel, token=None):
+        # if token is not specified, try getting it from env vars
+        if token is None:
+            token = os.getenv("SLACK_TOKEN")
 
-        path = Path("data") / "fpff_slack" / "users.json"
+        if channel is None:
+            channel = DEFAULT_CHANNEL
+
+        self.client = WebClient(token=token)
+        self.channel = channel
+
+        path = DEFAULT_DATA_PATH / "users.json"
         with open(path, "r") as f:
             self.users = {user.get("id"): user for user in json.load(f)}
 
@@ -47,14 +60,14 @@ class SlackTalker:
             return
 
         try:
-            # Call the chat.postMessage method using the WebClient
-            result = self.client.chat_postMessage(
-                channel=self.channel_id,
+            # call the chat.postMessage method using the WebClient
+            self.client.chat_postMessage(
+                channel=self.channel,
                 text=text,
                 username=self.users.get(user_id).get("profile").get("display_name")
                 or self.users.get(user_id).get("profile").get("real_name"),
                 icon_url=self.users.get(user_id).get("profile").get("image_72"),
             )
 
-        except SlackApiError as e:
-            print(f"Error posting message: {e}")
+        except SlackApiError:
+            log.exception(f"Error posting message: {e}")
