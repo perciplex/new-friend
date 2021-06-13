@@ -35,7 +35,7 @@ def run(channel=None, model_path=None, train=False, token=None):
 
 def train(output_path=None):
     if not output_path:
-        output_path = DEFAULT_MODEL_FILE
+        output_path = DEFAULT_MODELS_PATH/DEFAULT_MODEL_FILE
 
     bot = ConversationBot()
     bot.train()
