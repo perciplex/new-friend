@@ -64,10 +64,18 @@ class SlackTalker:
             self.client.chat_postMessage(
                 channel=self.channel,
                 text=text,
-                username=self.users.get(user_id).get("profile").get("display_name")
-                or self.users.get(user_id).get("profile").get("real_name"),
+                username=(
+                    self.users.get(user_id).get("bot_name") or
+                    self.users.get(user_id).get("profile").get("display_name") or 
+                    self.users.get(user_id).get("profile").get("real_name")
+                    ),
                 icon_url=self.users.get(user_id).get("profile").get("image_72"),
             )
 
+<<<<<<< HEAD:new_friend/slack_talker.py
         except SlackApiError:
             log.exception(f"Error posting message: {e}")
+=======
+        except SlackApiError as e:
+            print(f"Error posting message: {e}")
+>>>>>>> 7a4b8ce2b817cb4d034c8e2409441bd379ec75fc:slack_talker.py
