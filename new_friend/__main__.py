@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from new_friend import train, run
+from .new_friend import train, run
 import getopt, sys
 
 

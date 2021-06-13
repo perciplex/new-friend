@@ -11,6 +11,6 @@ setup(
     description="Replace your friends on Slack.",
     author="Perciplex",
     packages=find_packages(),
-    scripts=["bin/new_friend.py"],
+    setup_requires=['wheel'],
     install_requires=requirements,
 )

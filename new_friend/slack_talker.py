@@ -72,10 +72,5 @@ class SlackTalker:
                 icon_url=self.users.get(user_id).get("profile").get("image_72"),
             )
 
-<<<<<<< HEAD:new_friend/slack_talker.py
-        except SlackApiError:
-            log.exception(f"Error posting message: {e}")
-=======
         except SlackApiError as e:
             print(f"Error posting message: {e}")
->>>>>>> 7a4b8ce2b817cb4d034c8e2409441bd379ec75fc:slack_talker.py
