@@ -40,7 +40,7 @@ def process_run(args):
 
 def process_train(args):
     try:
-        opts, args = getopt.getopt(args, "ho:", ["help", "out="])
+        opts, args = getopt.getopt(args, "hd:o:", ["help", "data=", "out="])
     except getopt.GetoptError as err:
         usage()
         sys.exit(2)
@@ -49,6 +49,8 @@ def process_train(args):
         if o in ("-h", "--help"):
             usage()
             sys.exit()
+        elif o in ("-d", "--data"):
+            kwargs["data_path"] = a
         elif o in ("-o", "--out"):
             kwargs["output_path"] = a
         else:

@@ -1,6 +1,5 @@
 from .markov import Chain, SEND
 import json
-from pathlib import Path
 import pickle
 import gzip
 import logging
@@ -8,7 +7,6 @@ import logging
 log = logging.getLogger()
 
 IDLE_TIME_THRESHOLD_SECONDS = 3600
-DEFAULT_DATA_PATH = Path(__file__).parent.parent / "data"
 
 
 class ConversationBot:
@@ -29,12 +27,12 @@ class ConversationBot:
     def save(self, path):
         """Dump the model as a JSON object, for loading later."""
         log.info(f"Saving model to {path.absolute()}.")
-        pickle.dump(self.model, gzip.open(path, "wb"))
+        pickle.dump((self.model, self.users), gzip.open(path, "wb"))
 
     def load(self, path):
         """Dump the model as a JSON object, for loading later."""
         log.info(f"Reading model from {path.absolute()}.")
-        self.model = pickle.load(gzip.open(path, "rb"))
+        self.model, self.users = pickle.load(gzip.open(path, "rb"))
 
     def get_conversation(self):
         """Generator for messages in a new conversation."""
@@ -49,11 +47,15 @@ class ConversationBot:
                 sentence.append(word)
             current_user = user
 
-    def train(self, data_path=DEFAULT_DATA_PATH, max_files=None):
+    def train(self, data_path, max_files=None):
         """Use the json files to train the Markov model."""
         conversation_list = []
         current_conversation = []
         last_time = 0
+
+        users_path = data_path / "users.json"
+        with open(users_path, "r") as f:
+            self.users = {user.get("id"): user for user in json.load(f)}
 
         for file in ConversationBot.read_files(data_path, max_files):
             for msg in file:
