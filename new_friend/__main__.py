@@ -5,17 +5,15 @@ import getopt, sys
 def usage():
     print(
         """Usage:
-  new-friend train --out my_saved_model.p
-  new-friend run --model my_saved_model.p --token mytoken1234
-  new-friend run --channel general --token mytoken1234
-    """
+new-friend train --data data_directory/ --out my_saved_model.p
+new-friend run --model my_saved_model.p --channel general --token mytoken1234"""
     )
 
 
 def process_run(args):
     try:
         opts, args = getopt.getopt(
-            args, "hc:t:m:", ["help", "channel=", "token=", "model=", "train"]
+            args, "hc:t:m:", ["help", "channel=", "token=", "model="]
         )
     except getopt.GetoptError as err:
         usage()
@@ -29,10 +27,8 @@ def process_run(args):
             kwargs["channel"] = a
         elif o in ("-m", "--model"):
             kwargs["model_path"] = a
-        elif o in ("--token"):
+        elif o in ("-t", "--token"):
             kwargs["token"] = a
-        elif o in ("-t" "--train"):
-            kwargs["train"] = True
         else:
             assert False, "unhandled option"
     run(**kwargs)

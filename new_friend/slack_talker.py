@@ -7,7 +7,6 @@ import logging
 
 log = logging.getLogger()
 
-DEFAULT_CHANNEL = "app-test"
 
 class SlackTalker:
     def __init__(self, channel, users, token=None):
@@ -16,7 +15,7 @@ class SlackTalker:
             token = os.getenv("SLACK_TOKEN")
 
         if channel is None:
-            channel = DEFAULT_CHANNEL
+            raise Exception("Channel not specified.")
 
         self.client = WebClient(token=token)
         self.channel = channel
@@ -25,7 +24,7 @@ class SlackTalker:
 
     def say(self, user_id, text):
 
-        if self.users.get(user_id).get("is_bot"):
+        if user_id not in self.users or self.users.get(user_id).get("is_bot"):
             return
 
         if len(text) == 0:
@@ -36,10 +35,9 @@ class SlackTalker:
             channel=self.channel,
             text=text,
             username=(
-                self.users.get(user_id).get("bot_name") or
-                self.users.get(user_id).get("profile").get("display_name") or 
-                self.users.get(user_id).get("profile").get("real_name")
-                ),
+                self.users.get(user_id).get("new_friend_name")
+                or self.users.get(user_id).get("profile").get("display_name")
+                or self.users.get(user_id).get("profile").get("real_name")
+            ),
             icon_url=self.users.get(user_id).get("profile").get("image_72"),
         )
-            
