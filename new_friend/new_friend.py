@@ -9,14 +9,16 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 log = logging.getLogger()
 
 
-def run(channel=None, model_path=None, token=None):
+def run(channel=None, model_path=None, token=None, dry_run=False):
     bot = ConversationBot()
 
     if not model_path:
         raise Exception("Model path not specified.")
     model_path = Path(model_path)
 
-    talker = SlackTalker(channel, bot.users, token)
+    bot.load(model_path)
+
+    talker = SlackTalker(channel, bot.users, token, dry_run)
 
     while True:
         for user_id, message in bot.get_conversation():
